@@ -8,6 +8,10 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 // parse application/json
 app.use(bodyParser.json())
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../build')));
+app.use('/static', express.static(path.join(__dirname, 'build//static')))
+
 
 const cors = require('cors');
 app.use(cors());
@@ -73,9 +77,16 @@ app.put('/api/book/:id', (req, res)=>{
 app.delete('/api/book/:id',(req, res)=>{
   console.log('Deleting: '+req.params.id);
   bookModel.findByIdAndDelete({_id:req.params.id},(error,data)=>{
-    res.send(data);
+    if(error){
+      res.status(500).send(error);
+    }
+    res.status(200).send(data);
   })
 })
+
+app.get('*', (req,res) =>{
+  res.sendFile(path.join(__dirname+'/../build/index.html'));
+  });
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
